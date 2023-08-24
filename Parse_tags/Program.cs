@@ -1,56 +1,63 @@
 ﻿using System;
+using System.Text;
 using System.Text.RegularExpressions;
 
 class Program
 {
-    static string ParseupcaseTagsIteratively(string inputString)
+    static string ParseUpcaseTagsIteratively(string inputString)
     {
         int indexOpeningTag = 0;
         int indexClosingTag = 0;
-        int end = inputString.Length;
-        int start = 0;
-        int countCharactersToExamine = 0;
+        int currentIndex = 0;
 
-        while ((start <= end) && (indexOpeningTag > -1) && (indexClosingTag > -1))
+        StringBuilder resultString = new StringBuilder();
+
+        while ((currentIndex <= inputString.Length) && (indexOpeningTag > -1) && (indexClosingTag > -1))
         {
-            countCharactersToExamine = end - start;
-            indexOpeningTag = inputString.IndexOf("<upcase>", start, countCharactersToExamine);
+            //Get first index of opening tag
+            indexOpeningTag = inputString.IndexOf("<upcase>", currentIndex, StringComparison.OrdinalIgnoreCase);
 
+            //Stop search if no opening tag found and append text to current state
             if (indexOpeningTag == -1)
             {
+                resultString.Append(inputString.Substring(currentIndex));
                 break;
             }
 
-            start = indexOpeningTag + 8;
-            countCharactersToExamine = end - start;
+            //Apend text before opening tag
+            resultString.Append(inputString.Substring(currentIndex, indexOpeningTag - currentIndex));
 
-            indexClosingTag = inputString.IndexOf("</upcase>", start, countCharactersToExamine);
+            //Move the current index to first index of text to parse
+            currentIndex = indexOpeningTag + 8;
 
+            //Get first index of closing tag
+            indexClosingTag = inputString.IndexOf("</upcase>", currentIndex, StringComparison.OrdinalIgnoreCase);
+            
+            //Stop search if no closing tag found and append text to current state
             if (indexClosingTag == -1)
             {
+                resultString.Append(inputString.Substring(indexOpeningTag));
                 break;
             }
 
-            countCharactersToExamine = indexClosingTag - start;
+            //Parse text between tags
+            string textInsideTags = inputString.Substring(currentIndex, indexClosingTag - currentIndex);
+            resultString.Append(textInsideTags.ToUpper());
 
-            string currentSubstring = inputString.Substring(start, indexClosingTag - start);
-            string currentSubstringToUpper = currentSubstring.ToUpper();
-
-            inputString = inputString.Replace("<upcase>" + currentSubstring + "</upcase>", "<upcase>" + currentSubstring.ToUpper() + "</upcase>");
-
-            start = indexClosingTag + 9;
+            //Move current index to next of closing tag end
+            currentIndex = indexClosingTag + 9;
         }
 
-        return inputString;
+        return resultString.ToString();
     }
 
-    static string ParseupcaseTagsWithRegex(string inputString)
+    static string ParseUpcaseTagsWithRegex(string inputString)
     {
         string pattern = @"(<upcase>)(?'substring'[\w\s\d]+)(<\/upcase>)";
         MatchCollection matches = Regex.Matches(inputString, pattern, RegexOptions.IgnoreCase);
         foreach (Match match in matches)
         {
-            inputString = inputString.Replace(match.Groups["substring"].Value, match.Groups["substring"].Value.ToUpper());
+            inputString = inputString.Replace(match.Groups[0].Value, match.Groups["substring"].Value.ToUpper());
         }
 
         return inputString;
@@ -60,8 +67,8 @@ class Program
     {
         string inputString = Console.ReadLine()!;
 
-        Console.WriteLine(ParseupcaseTagsIteratively(inputString));
-        Console.WriteLine(ParseupcaseTagsWithRegex(inputString));
+        Console.WriteLine(ParseUpcaseTagsIteratively(inputString));
+        Console.WriteLine(ParseUpcaseTagsWithRegex(inputString));
     }
 }
 
