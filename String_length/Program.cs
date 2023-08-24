@@ -1,32 +1,25 @@
 ﻿using System;
-using System.Linq;
+using System.Text;
 
 class Program
 {
     static string FillMissingCharsWithStars(string inputString)
     {
-        string resultString = inputString;
+        StringBuilder resultString = new StringBuilder();
 
         if (String.IsNullOrEmpty(inputString))
         {
-            resultString = "";
-            IEnumerable<string> stars = Enumerable.Repeat("*", 20);
-            foreach (String str in stars)
-            {
-                resultString += str;
-            }
+            resultString.Append(new string('*', 20));
         }
         
         if (inputString.Length < 20)
         {
-            IEnumerable<string> stars = Enumerable.Repeat("*", 20 - inputString.Length);
-            foreach (String str in stars)
-            {
-                resultString += str;
-            }
+            string fillingStars = new string('*', 20 - inputString.Length);
+            resultString.Append(inputString);
+            resultString.Append(fillingStars);
         }
 
-        return resultString;
+        return resultString.ToString();
     }
 
     static void Main(string[] args)
