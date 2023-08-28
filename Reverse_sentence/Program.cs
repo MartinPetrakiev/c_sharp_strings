@@ -18,13 +18,19 @@ class Program
         int[] commaIndices = Enumerable.Range(0, words.Length)
                                        .Where(i => string.IsNullOrEmpty(words[i]))
                                        .ToArray();
+                                       
+        List<string> wordsList = words.ToList();
 
         foreach (int commaIndex in commaIndices)
         {
             reversedSentanceElements[commaIndex] = ",";
+            wordsList.RemoveAt(commaIndex);
         }
-
-        while (currentIndex < words.Length)
+    
+        wordsList.Reverse();
+        
+        int nextWordIndex = 0;
+        while (currentIndex < reversedSentanceElements.Length)
         {
             if (!string.IsNullOrEmpty(reversedSentanceElements[currentIndex]))
             {
@@ -33,14 +39,10 @@ class Program
             }
             else
             {
-                if (string.IsNullOrEmpty(words[wordsLastIndex - currentIndex]))
-                {
-                    currentIndex++;
-                    reversedSentanceElements[currentIndex - 1] = words[wordsLastIndex - currentIndex];
-                    continue;
-                }
-                reversedSentanceElements[currentIndex] = words[wordsLastIndex - currentIndex];
+                reversedSentanceElements[currentIndex] = wordsList[nextWordIndex];
             }
+
+            nextWordIndex++;
             currentIndex++;
         }
 
